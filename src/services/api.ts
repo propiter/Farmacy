@@ -141,3 +141,20 @@ export const listActas = async (params: {
     throw error;
   }
 };
+
+//actualizar observaciones de acta
+export const updateActaObservations = async (
+  actaId: string,
+  observaciones: string
+) => {
+  try {
+    const response = await axios.patch(
+      `${API_ENDPOINTS.UPDATE_ACTA_OBSERVATIONS(actaId)}`,
+      { observaciones }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating acta observations:", error);
+    throw error;
+  }
+};

@@ -46,7 +46,7 @@ export interface ReceptionAct {
   proveedor: string;
   tipo_acta: string;
   observaciones?: string;
-  cargada_inventario: boolean;
+  Cargada_Inventario: boolean;
   estado: boolean;
   fecha_creacion: string;
 }

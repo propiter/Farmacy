@@ -6,6 +6,7 @@ import ReceptionActForm from "../components/reception/ReceptionActForm";
 import ProductForm from "../components/reception/ProductForm";
 import ProductList from "../components/reception/ProductList";
 import ActSearch from "../components/reception/ActSearch";
+import ObservationModal from "../components/reception/ObservationModal";
 import { generateReceptionActPDF } from "../utils/pdf";
 import {
   createActa,
@@ -14,6 +15,7 @@ import {
   deleteActaProduct,
   editActaProduct,
   getActaProducts,
+  updateActaObservations,
 } from "../services/api";
 
 const Reception = () => {
@@ -24,8 +26,8 @@ const Reception = () => {
     index: number;
   } | null>(null);
   const [showNewActForm, setShowNewActForm] = useState(false);
+  const [showObservationsModal, setShowObservationsModal] = useState(false);
 
-  // Cargar productos del acta cuando se crea o cambia
   useEffect(() => {
     if (currentAct?.acta_id) {
       loadActProducts();
@@ -63,8 +65,12 @@ const Reception = () => {
         return;
       }
 
+      if (currentAct.Cargada_Inventario) {
+        toast.error("No se pueden modificar actas cargadas al inventario");
+        return;
+      }
+
       if (editingProduct) {
-        // Editar producto existente
         await editActaProduct(
           currentAct.acta_id.toString(),
           editingProduct.product.producto_id!.toString(),
@@ -72,7 +78,6 @@ const Reception = () => {
         );
         setEditingProduct(null);
       } else {
-        // Agregar nuevo producto
         await addProductsToActa(currentAct.acta_id, [
           {
             producto: product,
@@ -95,6 +100,11 @@ const Reception = () => {
 
   const handleRemoveProduct = async (index: number) => {
     try {
+      if (currentAct?.Cargada_Inventario) {
+        toast.error("No se pueden modificar actas cargadas al inventario");
+        return;
+      }
+
       const productToRemove = products[index];
       if (currentAct?.acta_id && productToRemove.acta_producto_id) {
         await deleteActaProduct(
@@ -115,13 +125,23 @@ const Reception = () => {
         toast.error("No hay acta seleccionada");
         return;
       }
+
+      if (products.length === 0) {
+        toast.error("No se puede cargar un acta sin productos");
+        return;
+      }
+
       await loadActaToInventory(currentAct.acta_id.toString());
-      // Recargar el acta para actualizar su estado
-      const updatedProducts = await getActaProducts(
-        currentAct.acta_id.toString()
-      );
-      setProducts(updatedProducts);
-      setCurrentAct({ ...currentAct, cargada_inventario: true });
+      await loadActProducts();
+
+      // Actualizar el estado del acta
+      const updatedAct = { ...currentAct, Cargada_Inventario: true };
+      setCurrentAct(updatedAct);
+
+      // Generar PDF automáticamente después de cargar al inventario
+      const doc = generateReceptionActPDF(updatedAct, products);
+      doc.save(`acta_${currentAct.acta_id}.pdf`);
+
       toast.success("Acta cargada al inventario exitosamente");
     } catch (error) {
       toast.error("Error al cargar al inventario");
@@ -137,6 +157,44 @@ const Reception = () => {
       toast.success("Acta cargada exitosamente");
     } catch (error) {
       toast.error("Error al cargar los productos del acta");
+    }
+  };
+
+  const handleGeneratePDF = async () => {
+    if (!currentAct) return;
+
+    // Si el acta no está cargada al inventario, mostrar modal de observaciones
+    if (!currentAct.Cargada_Inventario) {
+      setShowObservationsModal(true);
+      return;
+    }
+
+    // Si ya está cargada, generar PDF directamente
+    const doc = generateReceptionActPDF(currentAct, products);
+    doc.save(`acta_${currentAct.acta_id}.pdf`);
+  };
+
+  const handleConfirmObservations = async (observations: string) => {
+    try {
+      if (!currentAct?.acta_id) return;
+
+      // Actualizar observaciones en el servidor
+      await updateActaObservations(currentAct.acta_id.toString(), observations);
+
+      // Actualizar el estado local del acta con las nuevas observaciones
+      const updatedAct = { ...currentAct, observaciones: observations };
+      setCurrentAct(updatedAct);
+
+      // Cerrar el modal
+      setShowObservationsModal(false);
+
+      // Generar PDF con las observaciones actualizadas
+      const doc = generateReceptionActPDF(updatedAct, products);
+      doc.save(`acta_${currentAct.acta_id}.pdf`);
+
+      toast.success("PDF generado exitosamente");
+    } catch (error) {
+      toast.error("Error al actualizar las observaciones");
     }
   };
 
@@ -185,29 +243,22 @@ const Reception = () => {
                     {currentAct?.proveedor}
                   </p>
                   <p className="text-gray-600">
-                    Responsable: {currentAct?.Responsable} - Fecha:{" "}
+                    Responsable: {currentAct?.responsable} - Fecha:{" "}
                     {currentAct?.fecha_recepcion &&
-                      new Date(currentAct.fecha_recepcion).toLocaleDateString(
-                        "es-ES",
-                        {
-                          day: "2-digit",
-                          month: "2-digit",
-                          year: "numeric",
-                        }
-                      )}
+                      new Date(currentAct.fecha_recepcion).toLocaleDateString()}
                   </p>
                 </div>
 
                 <div className="flex space-x-4">
                   <button
-                    onClick={() => generateReceptionActPDF(currentAct!)}
+                    onClick={handleGeneratePDF}
                     className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
                     <FileText className="w-4 h-4 mr-2" />
                     Generar PDF
                   </button>
 
-                  {!currentAct?.cargada_inventario && (
+                  {!currentAct?.Cargada_Inventario && (
                     <button
                       onClick={handleLoadToInventory}
                       className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
@@ -221,11 +272,12 @@ const Reception = () => {
             )}
           </div>
 
-          {currentAct && !currentAct.cargada_inventario && (
+          {currentAct && !currentAct.Cargada_Inventario && (
             <ProductForm
               onAddProduct={handleAddProduct}
               editingProduct={editingProduct?.product}
               onCancelEdit={() => setEditingProduct(null)}
+              actType={currentAct.tipo_acta}
             />
           )}
 
@@ -237,20 +289,23 @@ const Reception = () => {
               <ProductList
                 products={products}
                 onEditProduct={(product, index) =>
+                  !currentAct.Cargada_Inventario &&
                   setEditingProduct({ product, index })
                 }
                 onRemoveProduct={handleRemoveProduct}
-                onUpdateObservations={(index, observations) => {
-                  const updatedProducts = [...products];
-                  updatedProducts[index].observaciones = observations;
-                  setProducts(updatedProducts);
-                }}
-                actType={currentAct.tipo_acta}
+                readOnly={currentAct.Cargada_Inventario}
               />
             </div>
           )}
         </>
       )}
+
+      <ObservationModal
+        isOpen={showObservationsModal}
+        currentObservations={currentAct?.observaciones || ""}
+        onClose={() => setShowObservationsModal(false)}
+        onConfirm={handleConfirmObservations}
+      />
     </div>
   );
 };

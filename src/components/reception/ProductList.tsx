@@ -96,7 +96,7 @@ const ProductList: React.FC<ProductListProps> = ({
                   ${product.precio_compra?.toLocaleString()}
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-500">
-                  {product.temperatura || "Ambiente"}
+                  {product.temperatura || "Temperatura Ambiente"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex space-x-2">

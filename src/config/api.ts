@@ -18,6 +18,8 @@ export const API_ENDPOINTS = {
     `${API_BASE_URL}/actas/${actaId}/products/${actaProductoId}`,
   LOAD_ACTA_TO_INVENTORY: (actaId: string) =>
     `${API_BASE_URL}/actas/${actaId}/inventory`,
+  UPDATE_ACTA_OBSERVATIONS: (actaId: string) =>
+    `${API_BASE_URL}/actas/${actaId}/observations`,
 };
 
 export class ApiError extends Error {
