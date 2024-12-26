@@ -1,46 +1,61 @@
-export interface User {
-  id: string;
-  name: string;
-  role: "admin" | "cashier";
-  email: string;
+// Tipos base
+export interface Temperature {
+  temperatura_id: number;
+  descripcion: string;
+  rango_temperatura: string;
 }
 
 export interface Product {
-  id: string;
-  code: string;
-  name: string;
-  concentration: string;
-  pharmaceuticalForm: string;
-  presentation: string;
-  laboratory: string;
-  sanitaryRegistration: string;
-  requiresColdChain: boolean;
-  temperature?: {
-    min: number;
-    max: number;
-    type: "refrigeracion" | "congelacion" | "ultracongelacion";
-  };
+  acta_producto_id?: number;
+  producto_id?: number;
+  nombre_producto: string;
+  concentracion?: string;
+  forma_farmaceutica?: string;
+  presentacion: string;
+  laboratorio: string;
+  registro_sanitario: string;
+  temperatura?: string;
+  temperatura_id?: string | number;
+  codigo_barras?: string;
+  categoria?: string;
+  lote_id: string;
+  fecha_vencimiento: string;
+  cantidad_recibida: number;
+  precio_compra: number;
+  observaciones?: string;
+  stock?: number;
+  estado?: boolean;
 }
 
 export interface Batch {
-  id: string;
-  productId: string;
-  batchNumber: string;
-  expirationDate: string;
-  quantity: number;
-  accepted: boolean;
+  lote_id: string;
+  producto_id: number;
+  fecha_vencimiento: string;
+  cantidad_disponible: number;
+  precio_compra: number;
+  observaciones?: string;
+  estado: boolean;
 }
 
 export interface ReceptionAct {
-  id: string;
-  receptionDate: string;
-  city: string;
-  responsible: string;
-  purchaseInvoice: string;
-  remission: string;
-  provider: string;
-  products: Array<{
-    product: Product;
-    batch: Batch;
-  }>;
+  acta_id: number;
+  fecha_recepcion: string;
+  ciudad: string;
+  responsable: string;
+  numero_factura: string;
+  proveedor: string;
+  tipo_acta: string;
+  observaciones?: string;
+  cargada_inventario: boolean;
+  estado: boolean;
+  fecha_creacion: string;
+}
+
+export interface ActProduct {
+  acta_producto_id: number;
+  acta_id: number;
+  producto_id: number;
+  lote_id: string;
+  cantidad_recibida: number;
+  precio_compra: number;
 }

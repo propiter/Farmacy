@@ -27,14 +27,9 @@ export const generateReceptionActPDF = (act: ReceptionAct) => {
     doc.setFontSize(20);
     doc.text("Droguería SENA", pageWidth / 2, 15, { align: "center" });
     doc.setFontSize(16);
-    doc.text(
-      `Acta de Recepción Tecnica De- ${actTypeName}`,
-      pageWidth / 2,
-      25,
-      {
-        align: "center",
-      }
-    );
+    doc.text(`Acta de Recepción Tecnica De ${actTypeName}`, pageWidth / 2, 25, {
+      align: "center",
+    });
   };
 
   const drawActDetails = () => {

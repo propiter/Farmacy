@@ -8,87 +8,87 @@ export interface FormField {
 }
 
 const COMMON_FIELDS: FormField[] = [
-  { name: "presentation", label: "Presentación", type: "text", required: true },
-  { name: "laboratory", label: "Laboratorio", type: "text", required: true },
-  { name: "batch", label: "Nº de lote", type: "text", required: true },
+  { name: "presentacion", label: "Presentación", type: "text", required: true },
+  { name: "laboratorio", label: "Laboratorio", type: "text", required: true },
+  { name: "lote", label: "Nº de lote", type: "text", required: true },
   {
-    name: "expirationDate",
+    name: "fecha_vencimiento",
     label: "Fecha de vencimiento",
     type: "date",
     required: true,
   },
   {
-    name: "sanitaryRegistration",
+    name: "registro_sanitario",
     label: "Registro sanitario Invima",
     type: "text",
     required: true,
   },
   {
-    name: "quantity",
+    name: "cantidad_recibida",
     label: "Cantidad recibida",
     type: "number",
     required: true,
   },
   {
-    name: "temperature",
+    name: "temperatura",
     label: "Temperatura requerida",
-    type: "text",
+    type: "select",
     required: true,
   },
 ];
 
 export const FIELDS_BY_TYPE: Record<ActType, FormField[]> = {
-  MEDICATIONS: [
+  Medicamentos: [
     {
-      name: "medicationName",
+      name: "nombre_producto",
       label: "Nombre del medicamento",
       type: "text",
       required: true,
     },
     {
-      name: "concentration",
+      name: "concentracion",
       label: "Concentración",
       type: "text",
       required: true,
     },
     {
-      name: "pharmaceuticalForm",
+      name: "forma_farmacéutica",
       label: "Forma farmacéutica",
       type: "text",
       required: true,
     },
     ...COMMON_FIELDS,
   ],
-  CLEANING: [
+  Productos_de_Aseo_y_Limpieza: [
     {
-      name: "commercialName",
+      name: "nombre_producto",
       label: "Marca comercial o nombre comercial",
       type: "text",
       required: true,
     },
     ...COMMON_FIELDS,
   ],
-  COSMETICS: [
+  Cosméticos: [
     {
-      name: "commercialName",
+      name: "nombre_producto",
       label: "Marca comercial o nombre comercial",
       type: "text",
       required: true,
     },
     ...COMMON_FIELDS,
   ],
-  MEDICAL_DEVICES: [
+  Dispositivos_Médicos: [
     {
-      name: "deviceName",
+      name: "nombre_producto",
       label: "Nombre del dispositivo",
       type: "text",
       required: true,
     },
     ...COMMON_FIELDS,
   ],
-  DIAGNOSTIC: [
+  Reactivos_de_Diagnóstico: [
     {
-      name: "commercialName",
+      name: "nombre_producto",
       label: "Marca comercial o nombre comercial",
       type: "text",
       required: true,

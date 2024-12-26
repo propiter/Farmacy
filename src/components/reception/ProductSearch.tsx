@@ -1,93 +1,81 @@
-import React, { useState } from "react";
-import { Search, Barcode } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Search } from "lucide-react";
 import { Product } from "../../types";
-import { searchProducts } from "../../services/productService";
+import { searchProducts } from "../../services/api";
+import { toast } from "react-hot-toast";
 
 interface ProductSearchProps {
-  onProductSelect: (product: Partial<Product>) => void;
+  onProductSelect: (product: Product) => void;
 }
 
 const ProductSearch: React.FC<ProductSearchProps> = ({ onProductSelect }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchResults, setSearchResults] = useState<Product[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
+  const [results, setResults] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSearch = async (value: string) => {
-    setSearchTerm(value);
-    if (value.length > 2) {
-      setIsSearching(true);
-      const results = await searchProducts(value);
-      setSearchResults(results);
-      setIsSearching(false);
-    } else {
-      setSearchResults([]);
-    }
-  };
+  useEffect(() => {
+    const searchTimeout = setTimeout(async () => {
+      if (searchTerm.length >= 3) {
+        setIsLoading(true);
+        try {
+          const data = await searchProducts(searchTerm);
+          setResults(data);
+        } catch (error) {
+          toast.error("Error al buscar productos");
+          console.error("Error searching products:", error);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setResults([]);
+      }
+    }, 300);
 
-  const handleProductSelect = (product: Product) => {
-    // Solo enviamos los campos base que queremos pre-llenar
-    const baseProduct = {
-      genericName: product.name,
-      commercialName: product.name,
-      concentration: product.concentration,
-      pharmaceuticalForm: product.pharmaceuticalForm,
-      presentation: product.presentation,
-      laboratory: product.laboratory,
-      sanitaryRegistration: product.sanitaryRegistration,
-      requiresColdChain: product.requiresColdChain,
-      temperature: product.temperature,
-      // Estos campos se dejan vacíos para que el usuario los complete
-      batch: "",
-      expirationDate: "",
-      requestedQuantity: 0,
-      receivedQuantity: 0,
-      accepted: true,
-    };
-
-    onProductSelect(baseProduct);
-    setSearchTerm("");
-    setSearchResults([]);
-  };
+    return () => clearTimeout(searchTimeout);
+  }, [searchTerm]);
 
   return (
-    <div className="space-y-4">
-      <div className="flex gap-2">
-        <div className="relative flex-1">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400" />
-          </div>
-          <input
-            type="text"
-            placeholder="Buscar medicamento..."
-            value={searchTerm}
-            onChange={(e) => handleSearch(e.target.value)}
-            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary sm:text-sm"
-          />
-          {isSearching && (
-            <div className="absolute right-3 top-2">
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
-            </div>
-          )}
+    <div className="relative">
+      <div className="relative">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <Search className="h-5 w-5 text-gray-400" />
         </div>
+        <input
+          type="text"
+          className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+          placeholder="Buscar por nombre o código de barras..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        {isLoading && (
+          <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+          </div>
+        )}
       </div>
 
-      {searchResults.length > 0 && (
-        <div className="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md py-1 max-h-60 overflow-auto">
-          {searchResults.map((product) => (
+      {results.length > 0 && (
+        <div className="absolute z-10 w-full mt-1 bg-white shadow-lg rounded-md overflow-hidden">
+          {results.map((product) => (
             <button
-              key={product.id}
-              onClick={() => handleProductSelect(product)}
-              className="w-full text-left px-4 py-2 hover:bg-gray-100"
+              key={product.producto_id}
+              className="w-full text-left px-4 py-2 hover:bg-gray-100 focus:outline-none focus:bg-gray-100"
+              onClick={() => {
+                onProductSelect(product);
+                setSearchTerm("");
+                setResults([]);
+              }}
             >
-              <div className="flex justify-between">
-                <span className="font-medium">{product.name}</span>
-                <span className="text-gray-500 text-sm">
-                  {product.concentration}
-                </span>
+              <div className="font-medium">{product.nombre_producto}</div>
+              <div className="text-sm text-gray-600">
+                {product.concentracion && `${product.concentracion} - `}
+                {product.laboratorio}
               </div>
-              <div className="text-sm text-gray-500">
-                {product.laboratory} - {product.pharmaceuticalForm}
-              </div>
+              {product.codigo_barras && (
+                <div className="text-xs text-gray-500">
+                  Código: {product.codigo_barras}
+                </div>
+              )}
             </button>
           ))}
         </div>

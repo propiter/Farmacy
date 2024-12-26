@@ -1,30 +1,31 @@
 import React, { useState } from "react";
-import { Eye, Trash2 } from "lucide-react";
+import { Eye, Edit, Trash2 } from "lucide-react";
 import { Product } from "../../types";
 import ProductDetails from "./ProductDetails";
-import { FIELDS_BY_TYPE } from "../../constants/formFields";
-import { ActType } from "../../constants/actTypes";
+import { format } from "date-fns";
 
 interface ProductListProps {
-  products: Partial<Product>[];
+  products: Product[];
+  onEditProduct: (product: Product, index: number) => void;
   onRemoveProduct: (index: number) => void;
-  actType?: ActType;
-  onUpdateObservations?: (index: number, observations: string) => void;
+  onUpdateObservations: (index: number, observations: string) => void;
 }
 
 const ProductList: React.FC<ProductListProps> = ({
   products,
+  onEditProduct,
   onRemoveProduct,
-  actType,
   onUpdateObservations,
 }) => {
-  const [selectedProduct, setSelectedProduct] =
-    useState<Partial<Product> | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<{
+    product: Product;
+    index: number;
+  } | null>(null);
   const [editingObservations, setEditingObservations] = useState<number | null>(
     null
   );
 
-  if (products.length === 0) {
+  if (!products || products.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
         No hay productos agregados al acta
@@ -32,31 +33,32 @@ const ProductList: React.FC<ProductListProps> = ({
     );
   }
 
-  const fields = actType ? FIELDS_BY_TYPE[actType] : [];
-
-  const handleObservationsChange = (index: number, value: string) => {
-    if (onUpdateObservations) {
-      onUpdateObservations(index, value);
-    }
-    setEditingObservations(null);
-  };
-
   return (
     <>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              {fields.map((field) => (
-                <th
-                  key={field.name}
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                >
-                  {field.label}
-                </th>
-              ))}
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Observaciones
+                Producto
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Presentación
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Lote
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Vencimiento
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Cantidad
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Precio
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Temperatura
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Acciones
@@ -65,55 +67,52 @@ const ProductList: React.FC<ProductListProps> = ({
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {products.map((product, index) => (
-              <tr key={index} className="hover:bg-gray-50">
-                {fields.map((field) => (
-                  <td key={field.name} className="px-6 py-4 whitespace-nowrap">
-                    {field.type === "date"
-                      ? new Date(
-                          product[field.name] as string
-                        ).toLocaleDateString()
-                      : product[field.name]}
-                  </td>
-                ))}
+              <tr key={product.acta_producto_id} className="hover:bg-gray-50">
                 <td className="px-6 py-4">
-                  {editingObservations === index ? (
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        defaultValue={product.observations || ""}
-                        className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
-                        onBlur={(e) =>
-                          handleObservationsChange(index, e.target.value)
-                        }
-                        onKeyPress={(e) => {
-                          if (e.key === "Enter") {
-                            handleObservationsChange(
-                              index,
-                              e.currentTarget.value
-                            );
-                          }
-                        }}
-                        autoFocus
-                      />
-                    </div>
-                  ) : (
-                    <div
-                      className="cursor-pointer hover:bg-gray-100 p-2 rounded"
-                      onClick={() => setEditingObservations(index)}
-                    >
-                      {product.observations ||
-                        "Click para agregar observaciones"}
-                    </div>
-                  )}
+                  <div className="text-sm font-medium text-gray-900">
+                    {product.nombre_producto}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {product.forma_farmaceutica} - {product.concentracion}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {product.laboratorio}
+                  </div>
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-500">
+                  {product.presentacion}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-500">
+                  {product.lote_id}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-500">
+                  {product.fecha_vencimiento &&
+                    format(new Date(product.fecha_vencimiento), "dd/MM/yyyy")}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-500">
+                  {product.cantidad_recibida}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-500">
+                  ${product.precio_compra?.toLocaleString()}
+                </td>
+                <td className="px-6 py-4 text-sm text-gray-500">
+                  {product.temperatura || "Ambiente"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex space-x-2">
                     <button
-                      onClick={() => setSelectedProduct(product)}
+                      onClick={() => setSelectedProduct({ product, index })}
                       className="text-blue-600 hover:text-blue-900"
                       title="Ver detalles"
                     >
                       <Eye className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => onEditProduct(product, index)}
+                      className="text-green-600 hover:text-green-900"
+                      title="Editar"
+                    >
+                      <Edit className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => onRemoveProduct(index)}
@@ -132,7 +131,7 @@ const ProductList: React.FC<ProductListProps> = ({
 
       {selectedProduct && (
         <ProductDetails
-          product={selectedProduct}
+          product={selectedProduct.product}
           onClose={() => setSelectedProduct(null)}
         />
       )}

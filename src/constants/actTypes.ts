@@ -1,9 +1,9 @@
 export const ACT_TYPES = {
-  MEDICATIONS: "Medicamentos",
-  CLEANING: "Productos de Aseo y Limpieza",
-  COSMETICS: "Cosméticos",
-  MEDICAL_DEVICES: "Dispositivos Médicos",
-  DIAGNOSTIC: "Reactivos de Diagnóstico",
+  Medicamentos: "Medicamentos",
+  Productos_de_Aseo_y_Limpieza: "Productos de Aseo y Limpieza",
+  Cosméticos: "Cosméticos",
+  Dispositivos_Médicos: "Dispositivos Médicos",
+  Reactivos_de_Diagnóstico: "Reactivos de Diagnóstico",
 } as const;
 
 export type ActType = keyof typeof ACT_TYPES;

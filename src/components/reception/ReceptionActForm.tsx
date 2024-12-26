@@ -1,36 +1,26 @@
-import React from "react";
+import React, { useState } from "react";
 import { Save } from "lucide-react";
 import { ReceptionAct } from "../../types";
-import { ACT_TYPES, ActType } from "../../constants/actTypes";
-import { FIELDS_BY_TYPE, FormField } from "../../constants/formFields";
+import { ACT_TYPES } from "../../constants/actTypes";
 
 interface ReceptionActFormProps {
   onSubmit: (data: Partial<ReceptionAct>) => void;
 }
 
 const ReceptionActForm: React.FC<ReceptionActFormProps> = ({ onSubmit }) => {
-  const [formData, setFormData] = React.useState<Partial<ReceptionAct>>({
-    receptionDate: new Date().toISOString().split("T")[0],
-    city: "",
-    responsible: "",
-    purchaseInvoice: "",
-    actType: "",
-    provider: "",
-    products: [],
+  const [formData, setFormData] = useState<Partial<ReceptionAct>>({
+    fecha_recepcion: new Date().toISOString().split("T")[0],
+    ciudad: "",
+    responsable: "",
+    numero_factura: "",
+    proveedor: "",
+    tipo_acta: "",
+    observaciones: "",
   });
-
-  const [actType, setActType] = React.useState<ActType | "">("");
-  const [dynamicFields, setDynamicFields] = React.useState<Record<string, any>>(
-    {}
-  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({
-      ...formData,
-      actType,
-      dynamicFields,
-    });
+    onSubmit(formData);
   };
 
   const handleChange = (
@@ -38,46 +28,6 @@ const ReceptionActForm: React.FC<ReceptionActFormProps> = ({ onSubmit }) => {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleActTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newType = e.target.value as ActType;
-    setActType(newType || "");
-    setDynamicFields({});
-  };
-
-  const handleDynamicFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setDynamicFields((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const renderDynamicFields = () => {
-    if (!actType || !(actType in FIELDS_BY_TYPE)) return null;
-
-    return (
-      <div className="mt-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">
-          Recepcion Tecnica de {ACT_TYPES[actType]}
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {FIELDS_BY_TYPE[actType].map((field: FormField) => (
-            <div key={field.name}>
-              <label className="block text-sm font-medium text-gray-700">
-                {field.label}
-              </label>
-              <input
-                type={field.type}
-                name={field.name}
-                value={dynamicFields[field.name] || ""}
-                onChange={handleDynamicFieldChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
-                required={field.required}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-    );
   };
 
   return (
@@ -89,8 +39,8 @@ const ReceptionActForm: React.FC<ReceptionActFormProps> = ({ onSubmit }) => {
           </label>
           <input
             type="date"
-            name="receptionDate"
-            value={formData.receptionDate}
+            name="fecha_recepcion"
+            value={formData.fecha_recepcion}
             onChange={handleChange}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
             required
@@ -103,8 +53,8 @@ const ReceptionActForm: React.FC<ReceptionActFormProps> = ({ onSubmit }) => {
           </label>
           <input
             type="text"
-            name="city"
-            value={formData.city}
+            name="ciudad"
+            value={formData.ciudad}
             onChange={handleChange}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
             required
@@ -117,8 +67,8 @@ const ReceptionActForm: React.FC<ReceptionActFormProps> = ({ onSubmit }) => {
           </label>
           <input
             type="text"
-            name="responsible"
-            value={formData.responsible}
+            name="responsable"
+            value={formData.responsable}
             onChange={handleChange}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
             required
@@ -127,12 +77,12 @@ const ReceptionActForm: React.FC<ReceptionActFormProps> = ({ onSubmit }) => {
 
         <div>
           <label className="block text-sm font-medium text-gray-700">
-            Factura de Compra
+            Número de Factura
           </label>
           <input
             type="text"
-            name="purchaseInvoice"
-            value={formData.purchaseInvoice}
+            name="numero_factura"
+            value={formData.numero_factura}
             onChange={handleChange}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
             required
@@ -145,8 +95,8 @@ const ReceptionActForm: React.FC<ReceptionActFormProps> = ({ onSubmit }) => {
           </label>
           <input
             type="text"
-            name="provider"
-            value={formData.provider}
+            name="proveedor"
+            value={formData.proveedor}
             onChange={handleChange}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
             required
@@ -158,9 +108,9 @@ const ReceptionActForm: React.FC<ReceptionActFormProps> = ({ onSubmit }) => {
             Tipo de Acta
           </label>
           <select
-            name="actType"
-            value={actType}
-            onChange={handleActTypeChange}
+            name="tipo_acta"
+            value={formData.tipo_acta}
+            onChange={handleChange}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
             required
           >
@@ -172,9 +122,20 @@ const ReceptionActForm: React.FC<ReceptionActFormProps> = ({ onSubmit }) => {
             ))}
           </select>
         </div>
-      </div>
 
-      {renderDynamicFields()}
+        <div className="lg:col-span-3">
+          <label className="block text-sm font-medium text-gray-700">
+            Observaciones
+          </label>
+          <textarea
+            name="observaciones"
+            value={formData.observaciones}
+            onChange={handleChange}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
+            rows={3}
+          />
+        </div>
+      </div>
 
       <div className="flex justify-end">
         <button
