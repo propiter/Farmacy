@@ -41,7 +41,7 @@ export interface ReceptionAct {
   acta_id: number;
   fecha_recepcion: string;
   ciudad: string;
-  responsable: string;
+  Responsable: string;
   numero_factura: string;
   proveedor: string;
   tipo_acta: string;

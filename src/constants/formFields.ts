@@ -10,29 +10,35 @@ export interface FormField {
 const COMMON_FIELDS: FormField[] = [
   { name: "presentacion", label: "Presentación", type: "text", required: true },
   { name: "laboratorio", label: "Laboratorio", type: "text", required: true },
-  { name: "lote", label: "Nº de lote", type: "text", required: true },
+  { name: "lote_id", label: "Número de Lote", type: "text", required: true },
   {
     name: "fecha_vencimiento",
-    label: "Fecha de vencimiento",
+    label: "Fecha de Vencimiento",
     type: "date",
     required: true,
   },
   {
     name: "registro_sanitario",
-    label: "Registro sanitario Invima",
+    label: "Registro Sanitario INVIMA",
     type: "text",
     required: true,
   },
   {
     name: "cantidad_recibida",
-    label: "Cantidad recibida",
+    label: "Cantidad Recibida",
     type: "number",
     required: true,
   },
   {
-    name: "temperatura",
-    label: "Temperatura requerida",
+    name: "temperatura_id",
+    label: "Temperatura Requerida",
     type: "select",
+    required: false,
+  },
+  {
+    name: "precio_compra",
+    label: "Precio de Compra",
+    type: "number",
     required: true,
   },
 ];
@@ -41,7 +47,7 @@ export const FIELDS_BY_TYPE: Record<ActType, FormField[]> = {
   Medicamentos: [
     {
       name: "nombre_producto",
-      label: "Nombre del medicamento",
+      label: "Nombre del Medicamento",
       type: "text",
       required: true,
     },
@@ -52,8 +58,8 @@ export const FIELDS_BY_TYPE: Record<ActType, FormField[]> = {
       required: true,
     },
     {
-      name: "forma_farmacéutica",
-      label: "Forma farmacéutica",
+      name: "forma_farmaceutica",
+      label: "Forma Farmacéutica",
       type: "text",
       required: true,
     },
@@ -62,7 +68,7 @@ export const FIELDS_BY_TYPE: Record<ActType, FormField[]> = {
   Productos_de_Aseo_y_Limpieza: [
     {
       name: "nombre_producto",
-      label: "Marca comercial o nombre comercial",
+      label: "Marca o Nombre Comercial",
       type: "text",
       required: true,
     },
@@ -71,7 +77,7 @@ export const FIELDS_BY_TYPE: Record<ActType, FormField[]> = {
   Cosméticos: [
     {
       name: "nombre_producto",
-      label: "Marca comercial o nombre comercial",
+      label: "Marca o Nombre Comercial",
       type: "text",
       required: true,
     },
@@ -80,7 +86,7 @@ export const FIELDS_BY_TYPE: Record<ActType, FormField[]> = {
   Dispositivos_Médicos: [
     {
       name: "nombre_producto",
-      label: "Nombre del dispositivo",
+      label: "Nombre del Dispositivo",
       type: "text",
       required: true,
     },
@@ -89,7 +95,7 @@ export const FIELDS_BY_TYPE: Record<ActType, FormField[]> = {
   Reactivos_de_Diagnóstico: [
     {
       name: "nombre_producto",
-      label: "Marca comercial o nombre comercial",
+      label: "Marca o Nombre Comercial",
       type: "text",
       required: true,
     },

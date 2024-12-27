@@ -243,7 +243,7 @@ const Reception = () => {
                     {currentAct?.proveedor}
                   </p>
                   <p className="text-gray-600">
-                    Responsable: {currentAct?.responsable} - Fecha:{" "}
+                    Responsable: {currentAct?.Responsable} - Fecha:{" "}
                     {currentAct?.fecha_recepcion &&
                       new Date(currentAct.fecha_recepcion).toLocaleDateString()}
                   </p>

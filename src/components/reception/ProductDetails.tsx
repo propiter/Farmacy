@@ -3,15 +3,18 @@ import { X } from "lucide-react";
 import { format } from "date-fns";
 import { Product } from "../../types";
 import { TEMPERATURE_OPTIONS } from "../../constants/pharmacy";
+import { ActType } from "../../constants/actTypes";
 
 interface ProductDetailsProps {
   product: Product;
   onClose: () => void;
+  actType: ActType;
 }
 
 const ProductDetails: React.FC<ProductDetailsProps> = ({
   product,
   onClose,
+  actType,
 }) => {
   const getTemperatureLabel = (tempId: string) => {
     return TEMPERATURE_OPTIONS[tempId]?.label || "Temperatura Ambiente";
@@ -30,6 +33,17 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
         </dd>
       </div>
     );
+  };
+
+  const getProductNameLabel = () => {
+    switch (actType) {
+      case "Medicamentos":
+        return "Nombre del Medicamento";
+      case "Dispositivos_Médicos":
+        return "Nombre del Dispositivo";
+      default:
+        return "Marca/Nombre Comercial";
+    }
   };
 
   return (
@@ -54,9 +68,16 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
                 Información General
               </h3>
               <dl>
-                {renderField("Nombre del Producto", product.nombre_producto)}
-                {renderField("Concentración", product.concentracion)}
-                {renderField("Forma Farmacéutica", product.forma_farmaceutica)}
+                {renderField(getProductNameLabel(), product.nombre_producto)}
+                {actType === "Medicamentos" && (
+                  <>
+                    {renderField("Concentración", product.concentracion)}
+                    {renderField(
+                      "Forma Farmacéutica",
+                      product.forma_farmaceutica
+                    )}
+                  </>
+                )}
                 {renderField("Presentación", product.presentacion)}
                 {renderField("Laboratorio", product.laboratorio)}
               </dl>

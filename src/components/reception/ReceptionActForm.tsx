@@ -11,7 +11,7 @@ const ReceptionActForm: React.FC<ReceptionActFormProps> = ({ onSubmit }) => {
   const [formData, setFormData] = useState<Partial<ReceptionAct>>({
     fecha_recepcion: new Date().toISOString().split("T")[0],
     ciudad: "",
-    responsable: "",
+    Responsable: "",
     numero_factura: "",
     proveedor: "",
     tipo_acta: "",
@@ -67,8 +67,8 @@ const ReceptionActForm: React.FC<ReceptionActFormProps> = ({ onSubmit }) => {
           </label>
           <input
             type="text"
-            name="responsable"
-            value={formData.responsable}
+            name="Responsable"
+            value={formData.Responsable}
             onChange={handleChange}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
             required

@@ -1,6 +1,19 @@
 import axios from "axios";
 import { API_ENDPOINTS } from "../config/api";
 import { Product, ReceptionAct, ActProduct } from "../types";
+import { TEMPERATURE_OPTIONS } from "../constants/pharmacy";
+
+// Función auxiliar para formatear el tipo de acta
+const formatActType = (tipo: string) => {
+  return tipo.replace(/_/g, " ");
+};
+// Función auxiliar para mapear el ID de temperatura
+const mapTemperatureId = (tempId: string | undefined) => {
+  if (!tempId || tempId === "AMBIENTE") return 1;
+  if (tempId === "REFRIGERACION") return 2;
+  if (tempId === "CONGELACION") return 3;
+  return 1; // Temperatura ambiente por defecto
+};
 
 // Búsqueda de productos
 export const searchProducts = async (term: string) => {
@@ -18,15 +31,15 @@ export const searchProducts = async (term: string) => {
 // Crear acta de recepción
 export const createActa = async (actaData: Partial<ReceptionAct>) => {
   try {
-    const response = await axios.post(API_ENDPOINTS.CREATE_ACTA, {
-      fecha_recepcion: actaData.fecha_recepcion,
-      ciudad: actaData.ciudad,
-      responsable: actaData.responsable,
-      numero_factura: actaData.numero_factura,
-      proveedor: actaData.proveedor,
-      tipo_acta: actaData.tipo_acta,
-      observaciones: actaData.observaciones,
-    });
+    const formattedActaData = {
+      ...actaData,
+      tipo_acta: formatActType(actaData.tipo_acta || ""),
+    };
+
+    const response = await axios.post(
+      API_ENDPOINTS.CREATE_ACTA,
+      formattedActaData
+    );
     return response.data;
   } catch (error) {
     console.error("Error creating acta:", error);
@@ -45,9 +58,20 @@ export const addProductsToActa = async (
   }>
 ) => {
   try {
+    const formattedProducts = productos.map((item) => ({
+      ...item,
+      producto: {
+        ...item.producto,
+        temperatura_id: mapTemperatureId(
+          item.producto.temperatura_id as string
+        ),
+        categoria: formatActType(item.producto.categoria || ""),
+      },
+    }));
+
     const response = await axios.post(
       API_ENDPOINTS.ADD_PRODUCTS_TO_ACTA(actaId.toString()),
-      { productos }
+      { productos: formattedProducts }
     );
     return response.data;
   } catch (error) {
@@ -118,7 +142,7 @@ export const loadActaToInventory = async (actaId: string) => {
 export const listActas = async (params: {
   fecha_inicio?: string;
   fecha_fin?: string;
-  responsable?: string;
+  Responsable?: string;
   numero_factura?: string;
   proveedor?: string;
   tipo_acta?: string;
@@ -129,7 +153,7 @@ export const listActas = async (params: {
         ...params,
         fecha_inicio: params.fecha_inicio || null,
         fecha_fin: params.fecha_fin || null,
-        responsable: params.responsable || null,
+        Responsable: params.Responsable || null,
         numero_factura: params.numero_factura || null,
         proveedor: params.proveedor || null,
         tipo_acta: params.tipo_acta || null,

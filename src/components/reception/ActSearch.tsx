@@ -12,7 +12,7 @@ const ActSearch: React.FC<ActSearchProps> = ({ onActSelect }) => {
   const [searchParams, setSearchParams] = useState({
     fecha_inicio: "",
     fecha_fin: "",
-    responsable: "",
+    Responsable: "",
     numero_factura: "",
     proveedor: "",
     tipo_acta: "",
@@ -95,11 +95,11 @@ const ActSearch: React.FC<ActSearchProps> = ({ onActSelect }) => {
           <input
             type="text"
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
-            value={searchParams.responsable}
+            value={searchParams.Responsable}
             onChange={(e) =>
               setSearchParams((prev) => ({
                 ...prev,
-                responsable: e.target.value,
+                Responsable: e.target.value,
               }))
             }
           />

@@ -6,33 +6,53 @@ import { toast } from "react-hot-toast";
 
 interface ProductSearchProps {
   onProductSelect: (product: Product) => void;
+  onBarcodeNotFound?: (barcode: string) => void;
 }
 
-const ProductSearch: React.FC<ProductSearchProps> = ({ onProductSelect }) => {
+const ProductSearch: React.FC<ProductSearchProps> = ({
+  onProductSelect,
+  onBarcodeNotFound,
+}) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [results, setResults] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const searchTimeout = setTimeout(async () => {
-      if (searchTerm.length >= 3) {
-        setIsLoading(true);
-        try {
-          const data = await searchProducts(searchTerm);
-          setResults(data);
-        } catch (error) {
-          toast.error("Error al buscar productos");
-          console.error("Error searching products:", error);
-        } finally {
-          setIsLoading(false);
-        }
-      } else {
-        setResults([]);
-      }
-    }, 300);
+  const isBarcodeFormat = (value: string) => {
+    return /^\d{8,14}$/.test(value);
+  };
 
-    return () => clearTimeout(searchTimeout);
-  }, [searchTerm]);
+  const handleSearch = async () => {
+    if (searchTerm.length >= 3) {
+      setIsLoading(true);
+      try {
+        const data = await searchProducts(searchTerm);
+        setResults(data);
+
+        // Si es un código de barras y no se encontraron resultados
+        if (
+          isBarcodeFormat(searchTerm) &&
+          data.length === 0 &&
+          onBarcodeNotFound
+        ) {
+          onBarcodeNotFound(searchTerm);
+        }
+      } catch (error) {
+        toast.error("Error al buscar productos");
+        console.error("Error searching products:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      setResults([]);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSearch();
+    }
+  };
 
   return (
     <div className="relative">
@@ -46,6 +66,7 @@ const ProductSearch: React.FC<ProductSearchProps> = ({ onProductSelect }) => {
           placeholder="Buscar por nombre o código de barras..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyDown={handleKeyDown}
         />
         {isLoading && (
           <div className="absolute inset-y-0 right-0 pr-3 flex items-center">

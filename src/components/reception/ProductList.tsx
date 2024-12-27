@@ -3,27 +3,25 @@ import { Eye, Edit, Trash2 } from "lucide-react";
 import { Product } from "../../types";
 import ProductDetails from "./ProductDetails";
 import { format } from "date-fns";
+import { ActType } from "../../constants/actTypes";
 
 interface ProductListProps {
   products: Product[];
   onEditProduct: (product: Product, index: number) => void;
   onRemoveProduct: (index: number) => void;
-  onUpdateObservations: (index: number, observations: string) => void;
+  actType: ActType;
 }
 
 const ProductList: React.FC<ProductListProps> = ({
   products,
   onEditProduct,
   onRemoveProduct,
-  onUpdateObservations,
+  actType,
 }) => {
   const [selectedProduct, setSelectedProduct] = useState<{
     product: Product;
     index: number;
   } | null>(null);
-  const [editingObservations, setEditingObservations] = useState<number | null>(
-    null
-  );
 
   if (!products || products.length === 0) {
     return (
@@ -33,6 +31,17 @@ const ProductList: React.FC<ProductListProps> = ({
     );
   }
 
+  const getProductNameLabel = () => {
+    switch (actType) {
+      case "Medicamentos":
+        return "Medicamento";
+      case "Dispositivos_Médicos":
+        return "Dispositivo";
+      default:
+        return "Producto";
+    }
+  };
+
   return (
     <>
       <div className="overflow-x-auto">
@@ -40,7 +49,7 @@ const ProductList: React.FC<ProductListProps> = ({
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Producto
+                {getProductNameLabel()}
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Presentación
@@ -72,9 +81,13 @@ const ProductList: React.FC<ProductListProps> = ({
                   <div className="text-sm font-medium text-gray-900">
                     {product.nombre_producto}
                   </div>
-                  <div className="text-sm text-gray-500">
-                    {product.forma_farmaceutica} - {product.concentracion}
-                  </div>
+                  {actType === "Medicamentos" && (
+                    <>
+                      <div className="text-sm text-gray-500">
+                        {product.forma_farmaceutica} - {product.concentracion}
+                      </div>
+                    </>
+                  )}
                   <div className="text-xs text-gray-500">
                     {product.laboratorio}
                   </div>
@@ -133,6 +146,7 @@ const ProductList: React.FC<ProductListProps> = ({
         <ProductDetails
           product={selectedProduct.product}
           onClose={() => setSelectedProduct(null)}
+          actType={actType}
         />
       )}
     </>

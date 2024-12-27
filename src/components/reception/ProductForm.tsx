@@ -3,12 +3,14 @@ import { Plus } from "lucide-react";
 import { Product } from "../../types";
 import { TEMPERATURE_OPTIONS } from "../../constants/pharmacy";
 import { FIELDS_BY_TYPE } from "../../constants/formFields";
+import { ActType } from "../../constants/actTypes";
 import ProductSearch from "./ProductSearch";
 
 interface ProductFormProps {
   onAddProduct: (product: Product) => void;
   editingProduct?: Partial<Product>;
   onCancelEdit?: () => void;
+  actType: ActType;
 }
 
 const ProductForm: React.FC<ProductFormProps> = ({
@@ -24,14 +26,24 @@ const ProductForm: React.FC<ProductFormProps> = ({
     if (editingProduct) {
       setProductDetails(editingProduct);
     } else {
-      setProductDetails({});
+      setProductDetails({
+        categoria: actType,
+        temperatura_id: "AMBIENTE",
+      });
     }
-  }, [editingProduct]);
+  }, [editingProduct, actType]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onAddProduct(productDetails as Product);
-    setProductDetails({});
+    const productToSubmit = {
+      ...productDetails,
+      categoria: actType,
+    };
+    onAddProduct(productToSubmit as Product);
+    setProductDetails({
+      categoria: actType,
+      temperatura_id: "AMBIENTE",
+    });
     if (onCancelEdit) {
       onCancelEdit();
     }
@@ -52,11 +64,20 @@ const ProductForm: React.FC<ProductFormProps> = ({
   const handleProductSelect = (product: Product) => {
     setProductDetails({
       ...product,
+      categoria: actType,
+      temperatura_id: product.temperatura_id || "AMBIENTE",
       lote_id: "",
       fecha_vencimiento: "",
       cantidad_recibida: 0,
       precio_compra: 0,
     });
+  };
+
+  const handleBarcodeNotFound = (barcode: string) => {
+    setProductDetails((prev) => ({
+      ...prev,
+      codigo_barras: barcode,
+    }));
   };
 
   return (
@@ -65,171 +86,60 @@ const ProductForm: React.FC<ProductFormProps> = ({
         {editingProduct ? "Editar Producto" : "Agregar Producto"}
       </h3>
 
-      <ProductSearch onProductSelect={handleProductSelect} />
+      <ProductSearch
+        onProductSelect={handleProductSelect}
+        onBarcodeNotFound={handleBarcodeNotFound}
+      />
 
       <form
         onSubmit={handleSubmit}
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
       >
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Nombre del Producto
-          </label>
-          <input
-            type="text"
-            name="nombre_producto"
-            value={productDetails.nombre_producto || ""}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
-            required
-          />
-        </div>
+        {fields.map((field) => (
+          <div key={field.name}>
+            <label className="block text-sm font-medium text-gray-700">
+              {field.label}
+            </label>
+            {field.type === "select" ? (
+              <select
+                name={field.name}
+                value={productDetails[field.name] || ""}
+                onChange={handleChange}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
+                required={field.required}
+              >
+                <option value="">Seleccione una opción</option>
+                {Object.entries(TEMPERATURE_OPTIONS).map(([key, temp]) => (
+                  <option key={key} value={key}>
+                    {temp.label}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type={field.type}
+                name={field.name}
+                value={productDetails[field.name] || ""}
+                onChange={handleChange}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
+                required={field.required}
+                min={field.type === "number" ? "0" : undefined}
+                step={
+                  field.type === "number" && field.name === "precio_compra"
+                    ? "0.01"
+                    : undefined
+                }
+              />
+            )}
+          </div>
+        ))}
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Concentración
-          </label>
-          <input
-            type="text"
-            name="concentracion"
-            value={productDetails.concentracion || ""}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Forma Farmacéutica
-          </label>
-          <input
-            type="text"
-            name="forma_farmaceutica"
-            value={productDetails.forma_farmaceutica || ""}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Presentación
-          </label>
-          <input
-            type="text"
-            name="presentacion"
-            value={productDetails.presentacion || ""}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Laboratorio
-          </label>
-          <input
-            type="text"
-            name="laboratorio"
-            value={productDetails.laboratorio || ""}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Registro INVIMA
-          </label>
-          <input
-            type="text"
-            name="registro_sanitario"
-            value={productDetails.registro_sanitario || ""}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Temperatura
-          </label>
-          <select
-            name="temperatura_id"
-            value={productDetails.temperatura_id || ""}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
-          >
-            <option value="">No requiere</option>
-            {Object.entries(TEMPERATURE_OPTIONS).map(([key, temp]) => (
-              <option key={key} value={key}>
-                {temp.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Número de Lote
-          </label>
-          <input
-            type="text"
-            name="lote_id"
-            value={productDetails.lote_id || ""}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Fecha de Vencimiento
-          </label>
-          <input
-            type="date"
-            name="fecha_vencimiento"
-            value={productDetails.fecha_vencimiento || ""}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Cantidad Recibida
-          </label>
-          <input
-            type="number"
-            name="cantidad_recibida"
-            value={productDetails.cantidad_recibida || ""}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
-            required
-            min="1"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Precio de Compra
-          </label>
-          <input
-            type="number"
-            name="precio_compra"
-            value={productDetails.precio_compra || ""}
-            onChange={handleChange}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
-            required
-            min="0"
-            step="0.01"
-          />
-        </div>
+        {/* Campo oculto para código de barras */}
+        <input
+          type="hidden"
+          name="codigo_barras"
+          value={productDetails.codigo_barras || ""}
+        />
 
         <div className="lg:col-span-3">
           <label className="block text-sm font-medium text-gray-700">
