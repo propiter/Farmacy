@@ -21,6 +21,10 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
     return /^\d{8,14}$/.test(value);
   };
 
+  const isNameFormat = (value: string) => {
+    return /^[a-zA-Z\s]+$/.test(value);
+  };
+
   const handleSearch = async () => {
     if (searchTerm.length >= 3) {
       setIsLoading(true);
@@ -50,9 +54,20 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      handleSearch();
+      if (isBarcodeFormat(searchTerm) || searchTerm.length >= 3) {
+        handleSearch();
+      }
     }
   };
+
+  useEffect(() => {
+    if (isNameFormat(searchTerm)) {
+      const delayDebounce = setTimeout(() => {
+        handleSearch();
+      }, 500); // Retraso para evitar múltiples llamadas mientras se escribe
+      return () => clearTimeout(delayDebounce);
+    }
+  }, [searchTerm]);
 
   return (
     <div className="relative">

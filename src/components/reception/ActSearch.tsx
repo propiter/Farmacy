@@ -1,22 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { ReceptionAct } from "../../types";
 import { listActas } from "../../services/api";
-import { format } from "date-fns";
+import ActTable from "./ActTable";
 
 interface ActSearchProps {
   onActSelect: (act: ReceptionAct) => void;
 }
 
 const ActSearch: React.FC<ActSearchProps> = ({ onActSelect }) => {
+  // Calcular la fecha actual menos 90 días
+  const getDefaultStartDate = () => {
+    const date = new Date();
+    date.setDate(date.getDate() - 60); // Restar 90 días
+    return date.toISOString().split("T")[0]; // Formato YYYY-MM-DD
+  };
+
   const [searchParams, setSearchParams] = useState({
-    fecha_inicio: "",
+    fecha_inicio: getDefaultStartDate(), // Fecha predeterminada
     fecha_fin: "",
     Responsable: "",
     numero_factura: "",
     proveedor: "",
     tipo_acta: "",
   });
+
   const [acts, setActs] = useState<ReceptionAct[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -159,71 +167,7 @@ const ActSearch: React.FC<ActSearchProps> = ({ onActSelect }) => {
         </button>
       </div>
 
-      {acts.length > 0 && (
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Fecha
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Factura
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Proveedor
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Tipo
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Estado
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Acción
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {acts.map((act) => (
-                <tr key={act.acta_id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {format(new Date(act.fecha_recepcion), "dd/MM/yyyy")}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {act.numero_factura}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {act.proveedor}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {act.tipo_acta}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        act.Cargada_Inventario
-                          ? "bg-green-100 text-green-800"
-                          : "bg-yellow-100 text-yellow-800"
-                      }`}
-                    >
-                      {act.Cargada_Inventario ? "Cargada" : "Pendiente"}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <button
-                      onClick={() => onActSelect(act)}
-                      className="text-primary hover:text-primary/80 font-medium"
-                    >
-                      Seleccionar
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      {acts.length > 0 && <ActTable acts={acts} onActSelect={onActSelect} />}
     </div>
   );
 };
