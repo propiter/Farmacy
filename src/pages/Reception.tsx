@@ -19,6 +19,12 @@ import {
 } from "../services/api";
 
 const Reception = () => {
+  type ActType =
+    | "Medicamentos"
+    | "Productos de Aseo y Limpieza"
+    | "Cosméticos"
+    | "Dispositivos Médicos"
+    | "Reactivos de Diagnóstico";
   const [currentAct, setCurrentAct] = useState<ReceptionAct | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [editingProduct, setEditingProduct] = useState<{
@@ -84,6 +90,7 @@ const Reception = () => {
             lote: product.lote_id,
             cantidad: product.cantidad_recibida,
             precio_compra: product.precio_compra,
+            temperatura_id: product.temperatura_id ?? 1,
           },
         ]);
       }
@@ -276,8 +283,7 @@ const Reception = () => {
             <ProductForm
               onAddProduct={handleAddProduct}
               editingProduct={editingProduct?.product}
-              onCancelEdit={() => setEditingProduct(null)}
-              actType={currentAct.tipo_acta}
+              actType={currentAct.tipo_acta as ActType}
             />
           )}
 

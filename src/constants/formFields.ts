@@ -33,7 +33,7 @@ const COMMON_FIELDS: FormField[] = [
     name: "temperatura_id",
     label: "Temperatura Requerida",
     type: "select",
-    required: false,
+    required: true,
   },
   {
     name: "precio_compra",
@@ -65,7 +65,7 @@ export const FIELDS_BY_TYPE: Record<ActType, FormField[]> = {
     },
     ...COMMON_FIELDS,
   ],
-  Productos_de_Aseo_y_Limpieza: [
+  "Productos de Aseo y Limpieza": [
     {
       name: "nombre_producto",
       label: "Marca o Nombre Comercial",
@@ -83,7 +83,7 @@ export const FIELDS_BY_TYPE: Record<ActType, FormField[]> = {
     },
     ...COMMON_FIELDS,
   ],
-  Dispositivos_Médicos: [
+  "Dispositivos Médicos": [
     {
       name: "nombre_producto",
       label: "Nombre del Dispositivo",
@@ -92,7 +92,7 @@ export const FIELDS_BY_TYPE: Record<ActType, FormField[]> = {
     },
     ...COMMON_FIELDS,
   ],
-  Reactivos_de_Diagnóstico: [
+  "Reactivos de Diagnóstico": [
     {
       name: "nombre_producto",
       label: "Marca o Nombre Comercial",

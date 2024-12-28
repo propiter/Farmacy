@@ -61,11 +61,10 @@ const ProductEdit: React.FC<ProductEditProps> = ({
                 </label>
                 {field.type === "select" ? (
                   <select
-                    name={field.name}
-                    value={formData[field.name] || ""}
+                    name="temperatura"
+                    value={formData.temperatura || ""}
                     onChange={handleChange}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
-                    required={field.required}
                   >
                     <option value="">Seleccione una opción</option>
                     {Object.entries(TEMPERATURE_OPTIONS).map(([key, temp]) => (
@@ -78,7 +77,7 @@ const ProductEdit: React.FC<ProductEditProps> = ({
                   <input
                     type={field.type}
                     name={field.name}
-                    value={formData[field.name] || ""}
+                    value={formData.temperatura || ""}
                     onChange={handleChange}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
                     required={field.required}
@@ -93,7 +92,7 @@ const ProductEdit: React.FC<ProductEditProps> = ({
               </label>
               <textarea
                 name="observations"
-                value={formData.observations || ""}
+                value={formData.observaciones || ""}
                 onChange={handleChange}
                 rows={3}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"

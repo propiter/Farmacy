@@ -28,7 +28,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
     } else {
       setProductDetails({
         categoria: actType,
-        temperatura_id: "AMBIENTE",
+        temperatura_id: 1,
       });
     }
   }, [editingProduct, actType]);
@@ -42,7 +42,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
     onAddProduct(productToSubmit as Product);
     setProductDetails({
       categoria: actType,
-      temperatura_id: "AMBIENTE",
+      temperatura_id: 1,
     });
     if (onCancelEdit) {
       onCancelEdit();
@@ -65,7 +65,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
     setProductDetails({
       ...product,
       categoria: actType,
-      temperatura_id: product.temperatura_id || "AMBIENTE",
+      temperatura_id: product.temperatura_id || 1,
       lote_id: "",
       fecha_vencimiento: "",
       cantidad_recibida: 0,
@@ -123,10 +123,14 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
                 required={field.required}
-                min={field.type === "number" ? "0" : undefined}
+                min={
+                  field.type === "number" && field.name === "precio_compra"
+                    ? "100"
+                    : undefined
+                }
                 step={
                   field.type === "number" && field.name === "precio_compra"
-                    ? "0.01"
+                    ? "100"
                     : undefined
                 }
               />

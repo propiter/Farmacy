@@ -35,7 +35,7 @@ const ProductList: React.FC<ProductListProps> = ({
     switch (actType) {
       case "Medicamentos":
         return "Medicamento";
-      case "Dispositivos_Médicos":
+      case "Dispositivos Médicos":
         return "Dispositivo";
       default:
         return "Producto";
@@ -64,7 +64,7 @@ const ProductList: React.FC<ProductListProps> = ({
                 Cantidad
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Precio
+                Costo
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Temperatura

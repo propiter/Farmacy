@@ -1,19 +1,6 @@
 import axios from "axios";
 import { API_ENDPOINTS } from "../config/api";
 import { Product, ReceptionAct, ActProduct } from "../types";
-import { TEMPERATURE_OPTIONS } from "../constants/pharmacy";
-
-// Función auxiliar para formatear el tipo de acta
-const formatActType = (tipo: string) => {
-  return tipo.replace(/_/g, " ");
-};
-// Función auxiliar para mapear el ID de temperatura
-const mapTemperatureId = (tempId: string | undefined) => {
-  if (!tempId || tempId === "AMBIENTE") return 1;
-  if (tempId === "REFRIGERACION") return 2;
-  if (tempId === "CONGELACION") return 3;
-  return 1; // Temperatura ambiente por defecto
-};
 
 // Búsqueda de productos
 export const searchProducts = async (term: string) => {
@@ -33,7 +20,7 @@ export const createActa = async (actaData: Partial<ReceptionAct>) => {
   try {
     const formattedActaData = {
       ...actaData,
-      tipo_acta: formatActType(actaData.tipo_acta || ""),
+      tipo_acta: actaData.tipo_acta,
     };
 
     const response = await axios.post(
@@ -55,6 +42,7 @@ export const addProductsToActa = async (
     lote: string;
     cantidad: number;
     precio_compra: number;
+    temperatura_id: number;
   }>
 ) => {
   try {
@@ -62,10 +50,8 @@ export const addProductsToActa = async (
       ...item,
       producto: {
         ...item.producto,
-        temperatura_id: mapTemperatureId(
-          item.producto.temperatura_id as string
-        ),
-        categoria: formatActType(item.producto.categoria || ""),
+        temperatura_id: item.producto.temperatura_id,
+        categoria: item.producto.categoria,
       },
     }));
 
@@ -98,7 +84,7 @@ export const editActaProduct = async (
   productData: Partial<ActProduct>
 ) => {
   try {
-    const response = await axios.put(
+    const response = await axios.patch(
       API_ENDPOINTS.EDIT_ACTA_PRODUCT(actaId, productoId),
       productData
     );

@@ -15,7 +15,7 @@ export interface Product {
   laboratorio: string;
   registro_sanitario: string;
   temperatura?: string;
-  temperatura_id?: string | number;
+  temperatura_id?: number;
   codigo_barras?: string;
   categoria?: string;
   lote_id: string;

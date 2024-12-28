@@ -2,7 +2,6 @@ import React from "react";
 import { X } from "lucide-react";
 import { format } from "date-fns";
 import { Product } from "../../types";
-import { TEMPERATURE_OPTIONS } from "../../constants/pharmacy";
 import { ActType } from "../../constants/actTypes";
 
 interface ProductDetailsProps {
@@ -16,10 +15,6 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
   onClose,
   actType,
 }) => {
-  const getTemperatureLabel = (tempId: string) => {
-    return TEMPERATURE_OPTIONS[tempId]?.label || "Temperatura Ambiente";
-  };
-
   const renderField = (label: string, value: any) => {
     if (!value) return null;
 
@@ -39,7 +34,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
     switch (actType) {
       case "Medicamentos":
         return "Nombre del Medicamento";
-      case "Dispositivos_Médicos":
+      case "Dispositivos Médicos":
         return "Nombre del Dispositivo";
       default:
         return "Marca/Nombre Comercial";
@@ -92,10 +87,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({
                 {renderField("Número de Lote", product.lote_id)}
                 {renderField("Fecha de Vencimiento", product.fecha_vencimiento)}
                 {renderField("Cantidad Recibida", product.cantidad_recibida)}
-                {renderField(
-                  "Temperatura",
-                  getTemperatureLabel(product.temperatura_id as string)
-                )}
+                {renderField("Temperatura", product.temperatura)}
               </dl>
             </div>
           </div>

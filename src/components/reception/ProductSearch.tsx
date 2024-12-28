@@ -64,7 +64,7 @@ const ProductSearch: React.FC<ProductSearchProps> = ({
     if (isNameFormat(searchTerm)) {
       const delayDebounce = setTimeout(() => {
         handleSearch();
-      }, 500); // Retraso para evitar múltiples llamadas mientras se escribe
+      }, 300); // Retraso para evitar múltiples llamadas mientras se escribe
       return () => clearTimeout(delayDebounce);
     }
   }, [searchTerm]);
